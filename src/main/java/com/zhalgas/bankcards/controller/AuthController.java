@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.zhalgas.bankcards.dto.AuthResponse;
+import com.zhalgas.bankcards.dto.LoginRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,4 +25,10 @@ public class AuthController {
         authService.register(request);
     }
 
+    @PostMapping("/login")
+    public AuthResponse login(
+        @Valid @RequestBody LoginRequest request
+    ) {
+        return authService.login(request);
+    }
 }
