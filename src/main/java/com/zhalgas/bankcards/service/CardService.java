@@ -1,0 +1,93 @@
+package com.zhalgas.bankcards.service;
+
+import com.zhalgas.bankcards.dto.CardResponse;
+import com.zhalgas.bankcards.dto.CreateCardRequest;
+import com.zhalgas.bankcards.entity.Card;
+import com.zhalgas.bankcards.entity.CardStatus;
+import com.zhalgas.bankcards.entity.User;
+import com.zhalgas.bankcards.exception.UserNotFoundException;
+import com.zhalgas.bankcards.repository.CardRepository;
+import com.zhalgas.bankcards.repository.UserRepository;
+import com.zhalgas.bankcards.util.CardDataProtector;
+import com.zhalgas.bankcards.util.CardNumberGenerator;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class CardService {
+
+    private final CardRepository cardRepository;
+    private final UserRepository userRepository;
+    private final CardNumberGenerator  cardNumberGenerator;
+    private final CardDataProtector dataProtector;
+
+    public CardService(
+            CardRepository cardRepository,
+            UserRepository userRepository,
+            CardNumberGenerator cardNumberGenerator,
+            CardDataProtector dataProtector
+    ) {
+        this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
+        this.cardNumberGenerator = cardNumberGenerator;
+        this.dataProtector = dataProtector;
+    }
+
+
+    private User findOwner(Long ownerId) {
+
+        User user = userRepository.findById(ownerId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found: " + ownerId
+                        )
+                );
+        return user;
+    }
+
+    private String generateUniqueNumber() {
+        String number;
+        String hash;
+
+        do {
+           number = cardNumberGenerator.generate();
+           hash = dataProtector.hash(number);
+        } while (
+                cardRepository.existsByNumberHash(hash)
+        );
+          return number;
+    }
+
+   private CardResponse toResponse(Card card) {
+        return new CardResponse(
+                card.getId(),
+                dataProtector.mask(card.getLastFour()),
+                card.getOwner().getId(),
+                card.getOwner().getUsername(),
+                card.getExpiryDate(),
+                card.getStatus(),
+                card.getBalance(),
+                card.getCreatedAt()
+        );
+   }
+
+   @Transactional
+    public CardResponse create(CreateCardRequest request) {
+        User owner = findOwner(request.ownerId());
+        String number = generateUniqueNumber();
+
+        Card card = new Card();
+
+        card.setEncryptedCardNumber(dataProtector.encrypt(number));
+        card.setNumberHash(dataProtector.hash(number));
+        card.setLastFour(number.substring(number.length() - 4));
+        card.setOwner(owner);
+        card.setExpiryDate(request.expiryDate());
+        card.setStatus(CardStatus.ACTIVE);
+        card.setBalance(request.initialBalance());
+
+        Card savedCard = cardRepository.save(card);
+
+        return toResponse(savedCard);
+   }
+}
