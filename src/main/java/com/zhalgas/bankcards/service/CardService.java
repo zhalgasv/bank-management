@@ -13,6 +13,7 @@ import com.zhalgas.bankcards.util.CardNumberGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 @Service
 public class CardService {
 
@@ -89,5 +90,13 @@ public class CardService {
         Card savedCard = cardRepository.save(card);
 
         return toResponse(savedCard);
+   }
+
+   @Transactional(readOnly = true)
+    public List<CardResponse> findMyCards(String username) {
+        return cardRepository.findAllByOwnerUsername(username)
+                .stream()
+                .map(this::toResponse)
+                .toList();
    }
 }
