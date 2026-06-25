@@ -12,8 +12,9 @@ import com.zhalgas.bankcards.util.CardDataProtector;
 import com.zhalgas.bankcards.util.CardNumberGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 @Service
 public class CardService {
 
@@ -93,10 +94,22 @@ public class CardService {
    }
 
    @Transactional(readOnly = true)
-    public List<CardResponse> findMyCards(String username) {
-        return cardRepository.findAllByOwnerUsername(username)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+    public Page<CardResponse> findMyCards(
+            String username,
+            CardStatus status,
+            Pageable pageable
+   ) {
+        Page<Card> cards;
+
+        if(status == null) {
+            cards = cardRepository.findAllByOwnerUsername(username, pageable);
+        } else {
+            cards = cardRepository.findAllByOwnerUsernameAndStatus(
+                    username,
+                    status,
+                    pageable
+            );
+        }
+        return cards.map(this::toResponse);
    }
 }

@@ -2,8 +2,10 @@ package com.zhalgas.bankcards.repository;
 
 import com.zhalgas.bankcards.entity.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.zhalgas.bankcards.entity.CardStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface CardRepository extends JpaRepository<Card, Long> {
@@ -12,5 +14,11 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
     boolean existsByNumberHash(String numberHash);
 
-    List<Card> findAllByOwnerUsername(String username);
+    Page<Card> findAllByOwnerUsername(String username, Pageable pageable);
+
+    Page<Card> findAllByOwnerUsernameAndStatus(
+            String username,
+            CardStatus status,
+            Pageable pageable
+    );
 }
