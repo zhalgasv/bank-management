@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import com.zhalgas.bankcards.entity.CardStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.zhalgas.bankcards.dto.TransferRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/cards")
@@ -38,6 +41,18 @@ public class CardController {
     ) {
         return cardService.requestBlock(
                 id,
+                authentication.getName()
+        );
+    }
+
+    @PostMapping("/transfer")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void transfer(
+            @Valid @RequestBody TransferRequest request,
+            Authentication authentication
+    ) {
+        cardService.transfer(
+                request,
                 authentication.getName()
         );
     }

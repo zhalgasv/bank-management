@@ -15,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.zhalgas.bankcards.exception.CardNotFoundException;
+import com.zhalgas.bankcards.dto.TransferRequest;
+import com.zhalgas.bankcards.exception.InsufficientFundsException;
+import com.zhalgas.bankcards.exception.InvalidTransferException;
 
 @Service
 public class CardService {
@@ -170,5 +173,42 @@ public class CardService {
         Card card = findUserCard(cardId, username);
         card.setStatus(CardStatus.BLOCKED);
         return toResponse(card);
+   }
+
+   @Transactional
+    public void transfer(TransferRequest request, String username) {
+        if (request.fromCardId().equals(request.toCardId())) {
+            throw new InvalidTransferException(
+                    "Cannot transfer money to the same card"
+            );
+        }
+
+        Card fromCard = findUserCard(request.fromCardId(), username);
+        Card toCard = findUserCard(request.toCardId(), username);
+
+        if(fromCard.getStatus() != CardStatus.ACTIVE) {
+            throw new InvalidTransferException(
+                    "Source card is not active"
+            );
+        }
+        if(toCard.getStatus() != CardStatus.ACTIVE) {
+            throw new InvalidTransferException(
+                    "Target card is not active"
+            );
+        }
+
+        if(fromCard.getBalance().compareTo(request.amount()) < 0) {
+            throw new InsufficientFundsException(
+                    "Insufficient funds"
+            );
+        }
+
+        fromCard.setBalance(
+                fromCard.getBalance().subtract(request.amount())
+        );
+
+        toCard.setBalance(
+                toCard.getBalance().add(request.amount())
+        );
    }
 }
