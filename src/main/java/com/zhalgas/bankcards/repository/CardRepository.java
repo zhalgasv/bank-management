@@ -21,4 +21,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
             CardStatus status,
             Pageable pageable
     );
+
+    Page<Card> findAllByStatus(CardStatus status, Pageable pageable);
 }

@@ -142,4 +142,33 @@ public class CardService {
         Card card = findCard(cardId);
         cardRepository.delete(card);
    }
+
+   @Transactional(readOnly = true)
+    public Page<CardResponse> findAllCards(CardStatus status, Pageable pageable) {
+        Page<Card> cards;
+
+        if(status == null) {
+            cards = cardRepository.findAll(pageable);
+        } else {
+            cards = cardRepository.findAllByStatus(status, pageable);
+        }
+
+        return cards.map(this::toResponse);
+   }
+
+   private Card findUserCard(Long cardId, String username) {
+        return cardRepository.findByIdAndOwnerUsername(cardId, username)
+                .orElseThrow(() ->
+                        new CardNotFoundException(
+                                "Card not found: " + cardId
+                        )
+                );
+   }
+
+   @Transactional
+    public CardResponse requestBlock(Long cardId, String username) {
+        Card card = findUserCard(cardId, username);
+        card.setStatus(CardStatus.BLOCKED);
+        return toResponse(card);
+   }
 }

@@ -6,6 +6,9 @@ import com.zhalgas.bankcards.service.CardService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import com.zhalgas.bankcards.entity.CardStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 @RestController
@@ -39,5 +42,13 @@ public class AdminCardController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         cardService.delete(id);
+    }
+
+    @GetMapping
+    public Page<CardResponse> findAllCards(
+            @RequestParam(required = false) CardStatus status,
+            Pageable pageable
+    ) {
+        return cardService.findAllCards(status, pageable);
     }
 }

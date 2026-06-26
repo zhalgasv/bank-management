@@ -20,14 +20,25 @@ public class CardController {
 
     @GetMapping("/my")
     public Page<CardResponse> findMyCards(
-        Authentication authentication,
-    @RequestParam(required = false) CardStatus status,
-    Pageable pageable
+            Authentication authentication,
+            @RequestParam(required = false) CardStatus status,
+            Pageable pageable
     ) {
         return cardService.findMyCards(
                 authentication.getName(),
                 status,
                 pageable
+        );
+    }
+
+    @PatchMapping("/{id}/block-request")
+    public CardResponse blockRequest(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        return cardService.requestBlock(
+                id,
+                authentication.getName()
         );
     }
 }
