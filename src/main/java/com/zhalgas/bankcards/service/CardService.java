@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.zhalgas.bankcards.exception.CardNotFoundException;
 
 @Service
 public class CardService {
@@ -111,5 +112,34 @@ public class CardService {
             );
         }
         return cards.map(this::toResponse);
+   }
+
+   private Card findCard(Long cardId) {
+       return cardRepository.findById(cardId)
+               .orElseThrow(() ->
+                       new CardNotFoundException(
+                               "Card not found: " + cardId
+                       )
+               );
+   }
+
+   @Transactional
+    public CardResponse block(Long cardId) {
+        Card card = findCard(cardId);
+        card.setStatus(CardStatus.BLOCKED);
+        return toResponse(card);
+   }
+
+   @Transactional
+    public CardResponse activate(Long cardId) {
+        Card card = findCard(cardId);
+        card.setStatus(CardStatus.ACTIVE);
+        return toResponse(card);
+   }
+
+   @Transactional
+    public void delete(Long cardId) {
+        Card card = findCard(cardId);
+        cardRepository.delete(card);
    }
 }

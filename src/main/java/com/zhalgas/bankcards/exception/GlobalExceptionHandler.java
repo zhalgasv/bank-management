@@ -56,4 +56,20 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<ApiError> handleCardNotFound(
+            CardNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        exception.getMessage(),
+                        request.getRequestURI(),
+                        Map.of()
+                )
+        );
+    }
 }

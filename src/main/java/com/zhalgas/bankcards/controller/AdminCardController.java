@@ -24,4 +24,20 @@ public class AdminCardController {
             @Valid @RequestBody CreateCardRequest request) {
         return cardService.create(request);
     }
+
+    @PatchMapping("/{id}/block")
+    public CardResponse block(@PathVariable Long id) {
+        return cardService.block(id);
+    }
+
+    @PatchMapping("/{id}/activate")
+    public CardResponse activate(@PathVariable Long id) {
+        return cardService.activate(id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        cardService.delete(id);
+    }
 }
