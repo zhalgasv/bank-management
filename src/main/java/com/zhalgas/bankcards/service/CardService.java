@@ -18,6 +18,7 @@ import com.zhalgas.bankcards.exception.CardNotFoundException;
 import com.zhalgas.bankcards.dto.TransferRequest;
 import com.zhalgas.bankcards.exception.InsufficientFundsException;
 import com.zhalgas.bankcards.exception.InvalidTransferException;
+import com.zhalgas.bankcards.dto.BalanceResponse;
 
 @Service
 public class CardService {
@@ -209,6 +210,16 @@ public class CardService {
 
         toCard.setBalance(
                 toCard.getBalance().add(request.amount())
+        );
+   }
+
+   @Transactional(readOnly = true)
+    public BalanceResponse getBalance(Long cardId, String username) {
+        Card card = findUserCard(cardId, username);
+
+        return new BalanceResponse(
+                card.getId(),
+                card.getBalance()
         );
    }
 }

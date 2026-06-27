@@ -72,4 +72,36 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<ApiError> handleInsufficientFunds(
+            InsufficientFundsException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getMessage(),
+                        request.getRequestURI(),
+                        Map.of()
+                )
+        );
+    }
+
+    @ExceptionHandler(InvalidTransferException.class)
+    public ResponseEntity<ApiError> handleInvalidTransfer(
+            InvalidTransferException exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ApiError(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getMessage(),
+                        request.getRequestURI(),
+                        Map.of()
+                )
+        );
+    }
 }

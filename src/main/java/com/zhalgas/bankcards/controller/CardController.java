@@ -1,5 +1,6 @@
 package com.zhalgas.bankcards.controller;
 
+import com.zhalgas.bankcards.dto.BalanceResponse;
 import com.zhalgas.bankcards.dto.CardResponse;
 import com.zhalgas.bankcards.service.CardService;
 import org.springframework.security.core.Authentication;
@@ -53,6 +54,17 @@ public class CardController {
     ) {
         cardService.transfer(
                 request,
+                authentication.getName()
+        );
+    }
+
+    @GetMapping("/{id}/balance")
+    public BalanceResponse getBalance(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        return cardService.getBalance(
+                id,
                 authentication.getName()
         );
     }
