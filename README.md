@@ -46,6 +46,20 @@ Backend application for managing bank cards. The project implements JWT authenti
 - Users can access only their own cards
 - Admin endpoints are protected by `ADMIN` role
 
+## Architecture
+
+The application uses a layered Spring Boot architecture:
+
+- `controller`: REST endpoints for authentication, admin card management, and user card operations
+- `service`: business rules for registration, card lifecycle, balance lookup, and transfers
+- `repository`: Spring Data JPA access to users and cards
+- `entity`: domain model for users, roles, cards, and card statuses
+- `dto`: request and response contracts exposed by the API
+- `security`: JWT authentication filter, token service, password encoding, and role checks
+- `util`: card number generation, hashing, encryption, and masking
+- `exception`: centralized error responses for validation and business failures
+- `db/changelog`: Liquibase migrations for database schema management
+
 ## Requirements
 
 - Java 17+
@@ -70,7 +84,7 @@ spring.datasource.username=bank_user
 spring.datasource.password=bank_password
 ```
 
-## Run Locally
+## How to Run
 
 Start PostgreSQL:
 
@@ -313,4 +327,3 @@ Run:
 ```bash
 ./mvnw test
 ```
-
